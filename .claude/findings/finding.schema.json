@@ -1,0 +1,146 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/ehharvey/shared-pets/.claude/findings/finding.schema.json",
+  "title": "Session finding",
+  "description": "One finding recorded by the session review hook. One file per finding. Files are never deleted; status changes record the outcome.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "id",
+    "createdAt",
+    "session",
+    "category",
+    "title",
+    "summary",
+    "evidence",
+    "recommendation",
+    "relatedIssues",
+    "status",
+    "statusReason",
+    "statusUpdatedAt",
+    "issue",
+    "history"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "id": {
+      "description": "Equals the file name without .json: <UTC timestamp>-<first 8 chars of session id>-<2-digit sequence>.",
+      "type": "string",
+      "pattern": "^[0-9]{8}T[0-9]{6}Z-[0-9a-f]{8}-[0-9]{2}$"
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "session": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "endReason", "branch", "worktree"],
+      "properties": {
+        "id": { "type": "string" },
+        "endReason": {
+          "description": "The SessionEnd hook's reason field, e.g. clear, logout, prompt_input_exit, other.",
+          "type": "string"
+        },
+        "branch": { "type": ["string", "null"] },
+        "worktree": {
+          "description": "Absolute path of the checkout the session ran in.",
+          "type": "string"
+        },
+        "transcriptPath": { "type": ["string", "null"] }
+      }
+    },
+    "category": {
+      "enum": ["bug", "doc-drift", "unrecorded-decision", "workflow-friction", "follow-up"]
+    },
+    "title": {
+      "description": "Imperative one-line summary, usable as an issue title.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 120
+    },
+    "summary": {
+      "description": "What was found and why it matters, in a few sentences.",
+      "type": "string",
+      "minLength": 1
+    },
+    "evidence": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["kind"],
+        "properties": {
+          "kind": { "enum": ["file", "transcript", "command"] },
+          "path": { "type": "string" },
+          "line": { "type": "integer", "minimum": 1 },
+          "excerpt": {
+            "description": "Short quote. Keep it under a few lines.",
+            "type": "string"
+          }
+        }
+      }
+    },
+    "recommendation": {
+      "description": "The reviewer's suggestion. The operator decides during triage.",
+      "enum": ["file", "fold", "drop"]
+    },
+    "relatedIssues": {
+      "description": "Existing GitHub issue numbers the reviewer found relevant.",
+      "type": "array",
+      "items": { "type": "integer", "minimum": 1 }
+    },
+    "status": {
+      "description": "open: awaiting triage. filed: became a new issue. folded: added to an existing issue. dismissed: not acted on.",
+      "enum": ["open", "filed", "folded", "dismissed"]
+    },
+    "statusReason": {
+      "description": "Why the finding has its current status. Null only while open.",
+      "type": ["string", "null"]
+    },
+    "statusUpdatedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "issue": {
+      "description": "The issue this finding was filed as or folded into.",
+      "type": ["integer", "null"],
+      "minimum": 1
+    },
+    "history": {
+      "description": "Every status the finding has had, oldest first. Append only. The last entry matches status and statusReason.",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["status", "statusReason", "at"],
+        "properties": {
+          "status": { "enum": ["open", "filed", "folded", "dismissed"] },
+          "statusReason": { "type": ["string", "null"] },
+          "at": { "type": "string", "format": "date-time" },
+          "issue": { "type": ["integer", "null"], "minimum": 1 }
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "status": { "const": "open" } } },
+      "then": { "properties": { "issue": { "const": null } } },
+      "else": { "properties": { "statusReason": { "type": "string", "minLength": 1 } } }
+    },
+    {
+      "if": { "properties": { "status": { "enum": ["filed", "folded"] } } },
+      "then": { "properties": { "issue": { "type": "integer" } } }
+    },
+    {
+      "if": { "properties": { "status": { "const": "dismissed" } } },
+      "then": { "properties": { "issue": { "const": null } } }
+    }
+  ]
+}
