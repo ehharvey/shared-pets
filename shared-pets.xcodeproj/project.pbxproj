@@ -21,6 +21,11 @@
 			path = "shared-pets";
 			sourceTree = "<group>";
 		};
+		339D4A26308312DC00A65322 /* docs */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = docs;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -37,6 +42,7 @@
 			children = (
 				339D4A0B30830DDC00A65322 /* README.md */,
 				000000000000000000000010 /* shared-pets */,
+				339D4A26308312DC00A65322 /* docs */,
 				000000000000000000000020 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -64,6 +70,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				000000000000000000000010 /* shared-pets */,
+				339D4A26308312DC00A65322 /* docs */,
 			);
 			name = "shared-pets";
 			productName = MyApp;
