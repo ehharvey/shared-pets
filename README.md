@@ -1,4 +1,3 @@
-# # Shared pets (working title)
 This is a project for a shared-pets app. The high-level is a social oriented habit tracker where habits are performed that translate as 'care acts' to a pet.
 
 # Requirements and Goals
