@@ -7,6 +7,7 @@ Use Apple's CloudKit instead of running a server. Private and shared CloudKit da
 | Layer | Choice | Notes |
 |---|---|---|
 | UI | SwiftUI | iOS first. Adaptive layouts keep iPad cheap. |
+| Platform | iOS 26.0 minimum | Latest major iOS minus one, decided in M0. `CKSyncEngine` needs iOS 17, so this is not the constraint. Bundle ID `ca.emilharvey.sharedpets`; the CloudKit container will be `iCloud.ca.emilharvey.sharedpets`. |
 | State | Observation (`@Observable`) | No Combine. async/await everywhere. |
 | Local storage | SwiftData | Source of truth on device. Works offline. |
 | Sync and sharing | CloudKit with `CKSyncEngine` | SwiftData's built-in CloudKit sync does not support shared databases, so sharing needs its own sync layer. |
