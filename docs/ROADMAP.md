@@ -9,14 +9,14 @@ The planning docs rely on these claims. They were stated from memory during plan
 |---|---|---|
 | App Store Connect sandbox testers cannot sign in to iCloud, so testing sharing needs a second real Apple Account. | [Testing Shared Sync](TESTING_SHARED_SYNC.md), M0 test account | Try signing a simulator into iCloud with a sandbox tester. Check Apple's sandbox testing docs. |
 | Simulators on Apple silicon Macs receive CloudKit change notifications. | Testing Shared Sync device table, `/verify-sync` | Run a minimal CloudKit subscription on two signed-in simulators and watch for the push. |
-| macOS runner minutes count ten times against GitHub's free allowance on private repos. | T1 CI split | Check GitHub's current Actions billing docs. |
+| macOS runner minutes cost about ten times Linux minutes against GitHub's free allowance on private repos. | T1 CI split | Check GitHub's current Actions billing docs. |
 | Xcode Cloud includes 25 free compute hours a month with the Apple Developer Program, and reports status checks to GitHub PRs. | T1 CI split | Check Apple's current Xcode Cloud docs. Connect the repo and open a test PR. |
 | Xcode's MCP tools only see the project open in Xcode, so they don't see changes in a git worktree. | T1 `CLAUDE.md` worktree rule, `issue-worker` | Open the main checkout in Xcode, change a file in a worktree, and ask the Xcode tools for diagnostics on it. |
 
-- [ ] Sandbox testers and iCloud.
+- [ ] Sandbox testers and iCloud. Docs checked 2026-10-16: Apple scopes sandbox accounts to in-app purchase testing, and a developer forum report says they don't work with CloudKit sharing. Sign-in attempts often fail asking for phone or two-factor setup. The conclusion holds: use a second real Apple Account. Still to do: try one on a simulator.
 - [ ] Simulator CloudKit notifications.
-- [ ] GitHub macOS runner billing.
-- [ ] Xcode Cloud free hours and GitHub status checks.
+- [x] GitHub macOS runner billing. Checked 2026-10-16: GitHub's docs no longer describe a 10x minute multiplier. They bill per minute by runner type, at $0.062 for macOS against $0.006 for Linux, and the billing dashboard may show usage as dollars. The effect is the same: macOS costs about ten times Linux. The Free plan includes 2,000 minutes a month.
+- [ ] Xcode Cloud free hours and GitHub status checks. Docs checked 2026-10-16: Apple confirms 25 compute hours a month with the Apple Developer Program, starting January 2024. Apple's docs say PR builds post their status to the pull request, and GitHub branch protection can require it. Still to do: connect the repo and open a test PR.
 - [ ] Xcode MCP tools and worktrees.
 
 ## M0: Foundations
@@ -39,7 +39,7 @@ Skills point at these for the rules instead of restating them.
 - [ ] Issue templates: task, design decision, bug.
 - [ ] Labels: `task`, `Ready`, `proposed`, `design-decision`, `bug`, `documentation`, `ai-optimization`, one per roadmap stage.
 - [ ] `docs/DECISIONS.md` with numbered sections, so issues and code can cite `§N`.
-- [ ] CI on Linux runners: PR shape and swift-format lint. macOS minutes count ten times against the free allowance on private repos.
+- [ ] CI on Linux runners: PR shape and swift-format lint. macOS minutes cost about ten times Linux minutes against the free allowance on private repos.
 - [ ] CI in Xcode Cloud: build and test on every PR, reporting status checks to GitHub. Uses the included free compute hours.
 
 ### T2: Core issue loop

@@ -4,7 +4,7 @@ How to test CloudKit sharing between household members during development.
 
 ## Accounts
 - CloudKit sharing needs at least two different Apple Accounts. You cannot accept a share you created yourself.
-- App Store Connect sandbox testers do not work. They are for in-app purchase testing and cannot sign in to iCloud.
+- App Store Connect sandbox testers do not work. Apple scopes them to in-app purchase testing, iCloud sign-in with them is unreliable, and developers report they don't work with CloudKit sharing.
 - Create a dedicated free Apple Account for testing, for example using a plus-address of your email.
 - iCloud requires two-factor authentication, so the test account needs a trusted phone number. It can usually share a number with your main account.
 - A third account is useful later for testing households with more than two members.
