@@ -11,7 +11,6 @@ Decisions needed before or during the milestone listed.
 | 5 | How should a member who stops participating be handled? | M3 | Decay scales by active members only |
 | 6 | 2D art style and source: commission, generate, or hand draw? | M2 | Prototype with placeholder art first |
 | 7 | SpriteKit versus layered SwiftUI images for the pet? | M2 | Try SwiftUI first. It is simpler to integrate. |
-| 8 | Minimum iOS version? | M0 | Latest major iOS minus one. `CKSyncEngine` needs iOS 17. |
 | 9 | Do nudges include an optional short message? | M3 | Preset emoji or phrases only, to keep it light |
 | 10 | Final app name? | M4 | Open |
 | 11 | Should the session review also run before context compaction, not only at session end? | Tooling | Session end only at first. Add compaction if long sessions lose findings. |
