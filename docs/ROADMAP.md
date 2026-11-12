@@ -20,9 +20,9 @@ The planning docs rely on these claims. They were stated from memory during plan
 - [ ] Xcode MCP tools and worktrees.
 
 ## M0: Foundations
-- [ ] Rename the app target and bundle identifier from the template.
-- [ ] Set up folder structure: Models, Features, Services, Resources.
-- [ ] Add a unit test target with Swift Testing.
+- [x] Rename the app target and bundle identifier from the template. Target `SharedPets`, bundle ID `ca.emilharvey.sharedpets`, minimum iOS 26.0.
+- [x] Set up folder structure: Models, Features, Services, Resources.
+- [x] Add a unit test target with Swift Testing. Target `SharedPetsTests`, run by the shared `SharedPets` scheme.
 - [ ] Enable the iCloud capability with a CloudKit container.
 - [ ] Create a second Apple Account for testing. See [Testing Shared Sync](TESTING_SHARED_SYNC.md).
 
