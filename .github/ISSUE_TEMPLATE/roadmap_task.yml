@@ -1,0 +1,26 @@
+name: Roadmap task
+description: A scoped build item from docs/ROADMAP.md
+title: "[Task]: "
+labels:
+  - task
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this for a concrete, scoped piece of build work tracked against a roadmap stage. For an unresolved design question, use the **Design decision** template instead.
+  - type: dropdown
+    id: phase
+    attributes:
+      label: Roadmap phase
+      description: Which stage in docs/ROADMAP.md does this belong to?
+      # Every "## " heading of docs/ROADMAP.md, verbatim and in order.
+      options:
+        - "S0: Verify assumptions (first)"
+        - "M0: Foundations"
+        - "Tooling: Claude Code workflow (alongside M0 and M1)"
+        - "M0.5: Shared sync spike (timebox: 3 days)"
+        - "M1: Solo habit tracker (local only)"
+        - "M2: Pet prototype (local only)"
+        - "M3: Shared raising"
+        - "M4: Polish and TestFlight"
+        - "Later (optional)"

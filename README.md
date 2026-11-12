@@ -18,3 +18,5 @@ This is a project for a shared-pets app. The high-level is a social oriented hab
 - [Roadmap](docs/ROADMAP.md)
 - [Open questions](docs/OPEN_QUESTIONS.md)
 - [Testing shared sync](docs/TESTING_SHARED_SYNC.md)
+- [Decisions](docs/DECISIONS.md)
+- [Development conventions](docs/DEVELOPMENT_CONVENTIONS.md)

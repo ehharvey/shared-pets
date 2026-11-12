@@ -1,0 +1,72 @@
+name: CI
+
+# Build, test and lint on every PR and push to main. The repo is public, so
+# GitHub-hosted runners cost nothing, macOS included; that is why build and
+# test run here rather than in Xcode Cloud (docs/DECISIONS.md §2).
+#
+# The job ids are the status check contexts named in the main ruleset's
+# required_status_checks: renaming one silently un-requires it.
+#
+# No `paths:` filter: a workflow skipped by a path filter reports no status,
+# so a required check would sit pending forever on a PR that misses the paths.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+# A newer push to the same PR cancels the older run; main's runs all finish.
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  # `make build` and `make test`: the shared scheme on the first available
+  # iPhone simulator of the runner's default Xcode.
+  build-test:
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v7
+      - run: xcodebuild -version
+      - run: make build
+      - run: make test
+
+  # swift-format from the runner's Xcode toolchain, as `make lint-swift` does.
+  lint:
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v7
+      - run: make lint-swift
+
+  # shellcheck at the version in .shellcheck-version, in its pinned Docker
+  # image: Linux runners have Docker, macOS runners don't.
+  lint-sh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: make lint-sh
+
+  # GitHub re-commits a rebase landing as whoever landed it, at the address
+  # the account's web-commit-email setting names, so check what actually
+  # landed (DEVELOPMENT_CONVENTIONS.md § Branching & issues). Not required:
+  # it runs only after the merge.
+  landed-identity:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Landed commits use the noreply identity
+        env:
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.sha }}
+        run: |
+          if [ "$BEFORE" = 0000000000000000000000000000000000000000 ] || ! git cat-file -e "$BEFORE" 2>/dev/null; then
+            ./scripts/check-commit-identity.sh -1 "$AFTER"
+          else
+            ./scripts/check-commit-identity.sh "$BEFORE..$AFTER"
+          fi
