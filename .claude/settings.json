@@ -1,0 +1,29 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(make build)",
+      "Bash(make test)",
+      "Bash(make lint)",
+      "Bash(make lint-swift)",
+      "Bash(make lint-sh)",
+      "Bash(make fmt)",
+      "Bash(make wt *)",
+      "Bash(make wt-list)",
+      "Bash(make wt-gc)",
+      "Bash(xcodebuild -list *)",
+      "Bash(xcrun simctl list *)",
+      "Bash(git fetch *)",
+      "Bash(gh pr view *)",
+      "Bash(gh pr checks *)",
+      "Bash(gh issue view *)",
+      "Bash(gh issue list *)"
+    ],
+    "ask": [
+      "Bash(make lgtm*)",
+      "Bash(gh pr merge *)",
+      "Bash(gh issue close *)",
+      "Bash(gh pr edit *)",
+      "Bash(git push --no-verify*)"
+    ]
+  }
+}

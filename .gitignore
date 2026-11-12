@@ -4,3 +4,7 @@
 # Xcode per-user state
 xcuserdata/
 *.xcuserstate
+build/
+
+# Claude Code worktrees (make wt)
+.claude/worktrees/

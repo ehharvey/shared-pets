@@ -1,0 +1,94 @@
+#!/usr/bin/env bash
+# Local mirror of the `one-commit` CI check (homelab-ops#119), so a multi-commit branch
+# fails in a second instead of after a push, a PR open, and a CI round trip.
+#
+# It also refuses a commit whose author or committer isn't the noreply
+# identity (homelab-ops#451, scripts/check-commit-identity.sh), which pr-shape.yml's
+# `one-commit` job checks too.
+#
+# CI is still the authority — this is a convenience, and `git push --no-verify`
+# bypasses it.
+#
+# Deliberately does not run make test/lint: xcodebuild is slow, and CI gates
+# those as required checks.
+set -euo pipefail
+
+# Under an absolute core.hooksPath, git may have started the main checkout's
+# copy for a worktree's push; hand off to the pushing checkout's own (homelab-ops#279).
+# Without the helper beside it, this copy checks the push itself.
+# shellcheck source=.githooks/run-own-copy.sh
+[ ! -f "${0%/*}/run-own-copy.sh" ] || . "${0%/*}/run-own-copy.sh"
+
+ZERO="0000000000000000000000000000000000000000"
+
+# The commit identity check (homelab-ops#451), from the checkout being pushed. A throwaway
+# fixture repo that uses this hook without the script skips it; the
+# `one-commit` CI job still checks the PR's commit.
+identity_check="$(git rev-parse --show-toplevel 2>/dev/null)/scripts/check-commit-identity.sh"
+
+# git feeds one line per ref being pushed:
+#   <local ref> <local sha> <remote ref> <remote sha>
+while read -r _local_ref local_sha remote_ref _remote_sha; do
+	# Branch deletion — nothing to inspect.
+	[ "$local_sha" = "$ZERO" ] && continue
+
+	if [ "$remote_ref" = "refs/heads/main" ]; then
+		echo "pre-push: main takes PRs, not direct pushes (the ruleset refuses this too)." >&2
+		echo "          Branch as eharvey/#<issue> and run \`make ship\`." >&2
+		exit 1
+	fi
+
+	# FETCH_HEAD rather than origin/main: `git fetch origin main` always writes
+	# it, whereas whether the remote-tracking ref advances depends on the
+	# remote's configured refspec.
+	git fetch -q origin main
+	ahead=$(git rev-list --count FETCH_HEAD.."$local_sha")
+
+	if [ "$ahead" -gt 1 ]; then
+		cat >&2 <<-EOF
+			pre-push: $remote_ref is $ahead commits ahead of main; it must be 1.
+
+			    git fetch origin main
+			    git reset --soft "\$(git merge-base FETCH_HEAD HEAD)"
+			    git commit -C "\$(git rev-list --reverse FETCH_HEAD..HEAD@{1} | head -1)"
+
+			Then push again, or let \`make ship\` squash (and rebase) it for you.
+			To push anyway: git push --no-verify
+		EOF
+		exit 1
+	fi
+
+	[ -x "$identity_check" ] || continue
+	# Exit 1 is an identity violation, explained below; anything else (2: a
+	# bad range, git log failing) is the check not running, and its stderr
+	# says why.
+	rc=0
+	err=$(mktemp)
+	bad=$("$identity_check" FETCH_HEAD.."$local_sha" 2>"$err") || rc=$?
+	if [ "$rc" -ne 0 ] && [ "$rc" -ne 1 ]; then
+		cat "$err" >&2
+		rm -f "$err"
+		cat >&2 <<-EOF
+			pre-push: couldn't check the commit identities on $remote_ref
+			(scripts/check-commit-identity.sh exited $rc; its error is above).
+			Fix that and push again. To push anyway: git push --no-verify
+		EOF
+		exit 1
+	fi
+	rm -f "$err"
+	if [ "$rc" -eq 1 ]; then
+		nl=$'\n'
+		bad="    ${bad//$nl/$nl    }"
+		cat >&2 <<-EOF
+			pre-push: $remote_ref has a commit whose author or committer isn't
+			36806437+ehharvey@users.noreply.github.com or a [bot] noreply address:
+
+			$bad
+
+			Fix the identity (\`make hooks\`), then
+			    git commit --amend --no-edit --reset-author
+			and push again. To push anyway: git push --no-verify
+		EOF
+		exit 1
+	fi
+done
